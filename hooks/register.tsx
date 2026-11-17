@@ -79,24 +79,29 @@ export const register: Register = on => {
     return out
   })
 
-  // The button: its own row above the prompt, right-aligned, shown while there is a draft
+  // The button: its own row above the prompt, right-aligned, shown while there is a draft.
+  // Other mods may draw this band too, so keep their rows under the button.
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     if (e.props.hasSurvey || !hasDraft) return next(e)
     const { Box, Button } = $.ui.resolve(e)
+    const below = await next(e)
     return (
-      <Box justifyContent="flex-end">
-        <Button
-          key="fix-draft"
-          label="✎ Fix grammar"
-          onPress={async () => {
-            const text = (await $.prompt.read()).text.trim()
-            if (!text) {
-              $.ui.toast('Type something in the input first')
-              return
-            }
-            await runFix($, text)
-          }}
-        />
+      <Box flexDirection="column">
+        <Box justifyContent="flex-end">
+          <Button
+            key="fix-draft"
+            label="✎ Fix grammar"
+            onPress={async () => {
+              const text = (await $.prompt.read()).text.trim()
+              if (!text) {
+                $.ui.toast('Type something in the input first')
+                return
+              }
+              await runFix($, text)
+            }}
+          />
+        </Box>
+        {below}
       </Box>
     )
   })

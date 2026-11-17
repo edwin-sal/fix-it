@@ -146,3 +146,23 @@ test('Send clears the draft and submits the corrected text as the user', async (
   expect(sent).toEqual([{ text: fixed, asUser: true }])
   await pane.unmount()
 })
+
+for (const surface of ['terminal', 'desktop'] as const) {
+  test(`button keeps the band's other rows, and yields to a survey (${surface})`, async ($, on) => {
+    const box = 'i has a error'
+    on('prompt.read', () => ({ value: { text: box, cursor: box.length } }))
+    on('prompt.edit', (_, e) => ({ text: e.inputText, cursor: e.inputText.length }))
+    // Another mod's row in the band, like a usage ring
+    on('ui.render', () => ({ type: 'Text', props: {}, children: ['Context 75%'] }))
+
+    await $.prompt.edit({ origin: { kind: 'composer' }, text: '', cursor: 0, start: 0, end: 0, inputText: box })
+    const band = await $.ui.mount({ ...BAND, surface })
+    expect(await band.find({ type: 'Button', key: 'fix-draft' })).toBeDefined()
+    expect(await band.find({ type: 'Text', text: /Context 75%/ })).toBeDefined()
+    await band.unmount()
+
+    const survey = await $.ui.mount({ ...BAND, surface, props: { ...BAND.props, hasSurvey: true } })
+    expect(await survey.find({ type: 'Button', key: 'fix-draft' })).toBeUndefined()
+    await survey.unmount()
+  })
+}
