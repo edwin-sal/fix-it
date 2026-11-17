@@ -1,0 +1,8 @@
+{
+  "name": "fix-it",
+  "owner": { "name": "fix-it" },
+  "description": "fix-it: a Claude Code mod that fixes the grammar of your unsent draft",
+  "plugins": [
+    { "name": "fix-it", "source": "./", "description": "Fix grammar in your unsent draft with Haiku: a button above the prompt, or /fix <text>" }
+  ]
+}
